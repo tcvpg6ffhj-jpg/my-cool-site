@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -23,13 +24,12 @@
         }
 
         body {
-            font-family: Arial, sans-serif; /* Простой шрифт */
+            font-family: Arial, sans-serif;
             background-color: var(--bg-dark);
             color: var(--text);
             line-height: 1.5;
         }
 
-        /* Контейнер по центру */
         .wrap {
             max-width: 1100px;
             margin: 0 auto;
@@ -245,7 +245,7 @@
             margin-right: 8px;
         }
 
-        /* Формы (Вход, Регистрация, Оплата) */
+        /* Формы */
         .form-box {
             max-width: 400px;
             margin: 40px auto;
@@ -418,7 +418,6 @@
     <header>
         <div class="wrap header-box">
             <div class="logo" onclick="goTo('home')">
-                <!-- Картинка логотипа (замените ссылку на свою локальную, если надо) -->
                 <img src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=100&auto=format&fit=crop&q=60" alt="logo">
                 СберПраво
             </div>
@@ -447,6 +446,18 @@
                 </div>
                 <img src="https://images.unsplash.com/photo-1505664194779-8beaceb93744?w=600&auto=format&fit=crop&q=60" alt="Юрист">
             </div>
+
+            <!-- ВСТАВЛЕННЫЙ КУСОК КОДА (ФОРМА) - Адаптирована под тёмную тему -->
+            <div style="max-width: 350px; margin: 40px auto; background: var(--bg-card); padding: 25px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 0 15px rgba(0, 255, 136, 0.1);">
+                <h3 style="text-align: center; color: var(--green); margin-bottom: 15px;">Оставить заявку</h3>
+                <!-- Красивая готовая форма для проверки (можете заменить на свою) -->
+                <form onsubmit="sendToDatabase(event)" style="display: flex; flex-direction: column; gap: 10px;">
+                  <input type="text" id="userName" placeholder="Ваше имя" required style="padding: 12px; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 16px;">
+                  <input type="text" id="userPhone" placeholder="Ваш телефон" required style="padding: 12px; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 16px;">
+                  <button type="submit" style="padding: 10px; background: var(--green); color: #000; border: none; cursor: pointer; border-radius: 8px; font-weight: bold; box-shadow: 0 0 10px rgba(0, 255, 136, 0.4);">Отправить в базу</button>
+                </form>
+            </div>
+            <!-- КОНЕЦ ВСТАВКИ -->
 
             <h2 style="text-align: center; margin-top: 40px;">Как это работает</h2>
             <div class="grid">
@@ -590,7 +601,6 @@
         <section id="services" class="page">
             <h2 style="text-align: center; margin-bottom: 20px;">Услуги</h2>
             <div class="grid">
-                <!-- Передаем id услуги в функцию openService -->
                 <div class="card" onclick="openService('consumer')">
                     <h3>Права потребителей</h3>
                     <p>Возврат товара, споры с магазинами.</p>
@@ -614,7 +624,6 @@
         <section id="service-details" class="page">
             <div class="service-detail-box">
                 <button class="btn btn-grey" style="margin-bottom:20px;" onclick="goTo('services')">← Назад</button>
-                <!-- Сюда JS будет подставлять картинку и текст -->
                 <img id="detail-img" src="" alt="Услуга">
                 <h1 id="detail-title" style="margin-bottom:15px;"></h1>
                 <p id="detail-desc"></p>
@@ -653,27 +662,56 @@
 
     </main>
 
+    <!-- ВСТАВЛЕННЫЙ КУСОК КОДА (СКРИПТ) -->
+    <!-- Подключаем базу данных Supabase -->
+    <script src="https://jsdelivr.net"></script>
+    <script>
+      // ЗАМЕНИТЕ ЭТИ ДАННЫЕ НА СВОИ ИЗ НАСТРОЕК SUPABASE (Шаг 3, пункт 1)
+      const URL_BAZY = "ВСТАВЬТЕ_СЮДА_PROJECT_URL";
+      const KLYUCH_BAZY = "ВСТАВЬТЕ_СЮДА_ANON_PUBLIC_KEY";
+      
+      const supabaseClient = supabase.createClient(URL_BAZY, KLYUCH_BAZY);
+
+      async function sendToDatabase(event) {
+        event.preventDefault(); // Чтобы страница не перезагружалась
+        
+        const nameValue = document.getElementById('userName').value;
+        const phoneValue = document.getElementById('userPhone').value;
+
+        // Записываем данные в таблицу 'zayavki'
+        const { data, error } = await supabaseClient
+          .from('zayavki')
+          .insert([{ name: nameValue, phone: phoneValue }]);
+
+        if (error) {
+          alert("Ой, ошибка: " + error.message);
+        } else {
+          alert("Ура! Данные улетели в базу данных!");
+          document.getElementById('userName').value = '';
+          document.getElementById('userPhone').value = '';
+        }
+      }
+    </script>
+
+    <!-- СКРИПТЫ САМОГО САЙТА (НАВИГАЦИЯ И ЧАТ) -->
     <script>
         // --- Навигация (переключение страниц) ---
         function goTo(pageId) {
-            // Скрываем все страницы
             let pages = document.querySelectorAll('.page');
             pages.forEach(function(p) {
                 p.classList.remove('active');
             });
             
-            // Показываем нужную
             let target = document.getElementById(pageId);
             if (target) {
                 target.classList.add('active');
-                window.scrollTo(0, 0); // Скролл наверх, чтобы не кидало вниз
+                window.scrollTo(0, 0);
             } else {
                 document.getElementById('404').classList.add('active');
             }
         }
 
         // --- Логика для страниц услуг ---
-        // Студенческий подход: просто храним данные в объекте
         const serviceData = {
             consumer: {
                 title: "Защита прав потребителей",
@@ -697,38 +735,31 @@
             }
         };
 
-        // Функция, которая подставляет данные и открывает страницу
         function openService(type) {
             let data = serviceData[type];
-            
             if (data) {
-                // Меняем текст и картинку в HTML
                 document.getElementById('detail-title').innerText = data.title;
                 document.getElementById('detail-desc').innerText = data.desc;
                 document.getElementById('detail-img').src = data.img;
-                
-                // Переходим на страницу
                 goTo('service-details');
             }
         }
 
-        // --- Чат (простая имитация) ---
+        // --- Чат ---
         function sendMsg() {
             let input = document.getElementById('chat-input');
             let area = document.getElementById('chat-area');
             
             if (input.value !== "") {
-                // Добавляем наше сообщение
                 let myMsg = document.createElement('div');
                 myMsg.className = 'msg user';
                 myMsg.innerText = input.value;
                 area.appendChild(myMsg);
                 
                 let text = input.value;
-                input.value = ""; // Очищаем поле
-                area.scrollTop = area.scrollHeight; // Скролл вниз
+                input.value = ""; 
+                area.scrollTop = area.scrollHeight; 
 
-                // Имитация ответа через 1 секунду
                 setTimeout(function() {
                     let botMsg = document.createElement('div');
                     botMsg.className = 'msg lawyer';
@@ -739,13 +770,11 @@
             }
         }
 
-        // Отправка по кнопке Enter
         document.getElementById('chat-input').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 sendMsg();
             }
         });
-
     </script>
 </body>
 </html>
